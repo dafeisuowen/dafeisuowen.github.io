@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #cy {
+            width: 100%;
+            height:100%;
+            position: absolute;
+            left: 0;
+            top:0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cy"></div>
+    <script src="./jquery.min.js"></script>
+    <script src="./main.js"></script>
+    <script>
+        var cy = cytoscape({
+            container: document.getElementById('cy'),
+            boxSelectionEnabled: true,
+            autounselectify: true,
+             motionBlur:!1,
+             maxZoom:2.5,
+             minZoom:.4,
+             wheelSensitivity:.1,//滑动滚轮一次缩放大小
+             textureOnViewport:!1,
+            style: [{
+                    selector: 'node',
+                    style: {
+                        "content": function (ele) {
+                            return ele.data('label') || ele.data('id')
+                        },
+                        "text-valign": 'center',
+                        "width": function (a) {
+                            return "Company" == a.data('type') ? 60 : 45
+                        },
+                        "height": function (a) {
+                            return "Company" == a.data('type') ? 60 : 45
+                        },
+                        "background-color": function (a) {
+                            return !a.data('target') ? '#47D2AC' : "Company" == a.data('type') ?
+                                '#2196F4' : '#EAA829'
+                        },
+                        "color": '#fff',
+                        "border-color": function (a) {
+                            return !a.data('target') ? '#47D2AC' : "Company" == a.data('type') ?
+                                '#2196F4' : '#EAA829'
+                        },
+                        "border-width": 1,
+                        "text-wrap": "wrap",
+                        "font-size": 10,
+                        "font-family": "microsoft yahei",
+                        "overlay-color": "#fff",
+                        "overlay-opacity": 0,
+                        "background-opacity": 1,
+                        "shape": "ellipse",
+                        "z-index-compare": "manual",
+                        "z-index": 20,
+                        "padding": function (a) {
+                            return "Company" == a.data("type") ? 3 : 0
+                        },
+                        "text-max-width": 60,
+                        "text-margin-y": function (a) {
+                            return "Company" == a.data("type") ? 4 : 2
+                        },
+                        "label": function (a) {
+                            a = a.data("id");
+                            var b = a.length;
+                            return 5 >= b ? a : 5 <= b && 9 >= b ? a.substring(0, b - 5) + "\n" + a.substring(
+                                b - 5, b) : 9 <= b && 13 >= b ? a.substring(0, 4) + "\n" + a.substring(
+                                4, 9) + "\n" + a.substring(9, 13) : a.substring(0, 4) + "\n" + a.substring(
+                                4, 9) + "\n" + a.substring(9, 12) + ".."
+                        },
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        // 添加箭头
+                        "line-style": function (a) {
+                            return "solid"
+                        },
+                        "curve-style": "bezier",
+                        "control-point-step-size": 20,
+                        "target-arrow-shape": "triangle",
+                        "target-arrow-color": function (a) {
+                            // return a.data("color")
+                            return "2" == a.data('label') ? '#DCDCDC' : '#2196F4'
+
+                            return '#DCDCDC'
+                        },
+                        "arrow-scale": .5,
+                        "line-color": function (a) {
+                            // return a.data("color")
+                            return "2" == a.data('label') ? '#DCDCDC' : '#2196F4'
+                            // return '#DCDCDC'
+                        },
+                        "label": function (a) {
+                            return a.data("label")
+                        },
+                        "text-opacity": .8,
+                        "font-size": 10,
+                        "background-color": function (a) {
+                            return "#333"
+                        },
+
+                        "width": 1,
+                        "overlay-color": "#fff",
+                        "overlay-opacity": 0,
+                        "font-family": "microsoft yahei"
+                    }
+                },
+                {
+                    selector: ':selected',
+                    style: {
+                        "border-width": 3,
+                        "border-color": '#333',
+                        "background-color": 'black',
+                        "line-color": 'black',
+                        "target-arrow-color": 'black',
+                        "source-arrow-color": 'black'
+                    }
+                },
+                {
+                    selector: ".nodeHover", //节点变暗，有悬停效果
+                    style: {
+                        "shape": "ellipse",
+                        "background-opacity": .8
+                    }
+                },
+                {
+                    selector: ".nodeActive",
+                    style: {
+                        "border-color": '#4EA2F0',
+                        "border-width": 10,
+                        "border-opacity": .5
+                    }
+                },
+                {
+                    selector: ".edgeShow",
+                    style: {
+                        "color": "#999",
+                        "text-opacity": 1,
+                        "font-weight": 400,
+                        "label": function (a) {
+                            return a.data("label")
+                        },
+                        "font-size": 10,
+                        "arrow-scale": .8,
+                        "width": 1.5,
+                        "source-text-margin-y": 20,
+                        "target-text-margin-y": 20,
+                    },
+                },
+                {
+                    selector: ".edgeActive",
+                    style: {
+                        "arrow-scale": .8,
+                        "width": 1.5,
+                        "color": "#330",
+                        "text-opacity": 1,
+                        "font-size": 10,
+                        "text-background-color": "#fff",
+                        "text-background-opacity": .8,
+                        "text-background-padding": 0,
+                        "source-text-margin-y": 20,
+                        "target-text-margin-y": 20,
+                        "z-index-compare": "manual",
+                        "z-index": 1,
+                        "line-color": function (a) { //直线颜色
+                            return "#4EA2F0"
+                        },
+                        "target-arrow-color": function (a) { //箭头颜色
+                            return "#4EA2F0"
+                        },
+                        label: function (a) {
+                            return a.data("label")
+                        }
+                    }
+                },
+                {
+                    selector: ".dull",
+                    style: {
+                        "z-index": 1,
+                        "opacity": .2
+                    }
+                }
+            ],
+            elements: {
+                nodes:[
+                {data:{id:'RepAdams',target:true,type:'Company'}},
+                {data:{id:'repdonyoung',target:true,type:'Company'}},
+                {data:{id:'RepColinAllred',target:true,type:'Company'}},
+                {data:{id:'RepAuchincloss',target:true,type:'Company'}},
+                {data:{id:'RepCindyAxne',target:true,type:'Company'}},
+                {data:{id:'RepDonBacon',target:true,type:'Company'}},
+                {data:{id:'RepBarragan',target:true,type:'Company'}},
+                {data:{id:'RepKarenBass',target:true,type:'Company'}},
+                {data:{id:'RepBeatty',target:true,type:'Company'}},
+                {data:{id:'SenatorBennet',target:true,type:'Company'}},
+                {data:{id:'RepDonBeyer',target:true,type:'Company'}},
+                {data:{id:'SanfordBishop',target:true,type:'Company'}},
+                {data:{id:'RepDanBishop',target:true,type:'Company'}},
+                {data:{id:'RepLBR',target:true,type:'Company'}},
+                {data:{id:'RepBonamici',target:true,type:'Company'}},
+                {data:{id:'SenBooker',target:true,type:'Company'}},
+                {data:{id:'CongBoyle',target:true,type:'Company'}},
+                {data:{id:'SenSherrodBrown',target:true,type:'Company'}},
+                {data:{id:'RepAnthonyBrown',target:true,type:'Company'}},
+                {data:{id:'RepBrownley',target:true,type:'Company'}},
+                {data:{id:'RepLarryBucshon',target:true,type:'Company'}},
+                {data:{id:'RepTedBudd',target:true,type:'Company'}},
+                {data:{id:'SenatorBurr',target:true,type:'Company'}},
+                {data:{id:'RepCori',target:true,type:'Company'}},
+                {data:{id:'RepCheri',target:true,type:'Company'}},
+                {data:{id:'GKButterfield',target:true,type:'Company'}},
+                {data:{id:'RepCardenas',target:true,type:'Company'}},
+                {data:{id:'RepAndreCarson',target:true,type:'Company'}},
+                {data:{id:'RepCartwright',target:true,type:'Company'}},
+                {data:{id:'RepEdCase',target:true,type:'Company'}},
+                {data:{id:'SenBobCasey',target:true,type:'Company'}},
+                {data:{id:'RepCasten',target:true,type:'Company'}},
+                {data:{id:'USRepKCastor',target:true,type:'Company'}},
+                {data:{id:'JoaquinCastrotx',target:true,type:'Company'}},
+                {data:{id:'RepCawthorn',target:true,type:'Company'}},
+                {data:{id:'RepJudyChu',target:true,type:'Company'}},
+                {data:{id:'RepCicilline',target:true,type:'Company'}},
+                {data:{id:'RepKClark',target:true,type:'Company'}},
+                {data:{id:'RepYvetteClarke',target:true,type:'Company'}},
+                {data:{id:'WhipClyburn',target:true,type:'Company'}},
+                {data:{id:'ChrisCoons',target:true,type:'Company'}},
+                {data:{id:'GerryConnolly',target:true,type:'Company'}},
+                {data:{id:'SenCortezMasto',target:true,type:'Company'}},
+                {data:{id:'RepJoeCourtney',target:true,type:'Company'}},
+                {data:{id:'RepAngieCraig',target:true,type:'Company'}},
+                {data:{id:'SenDuckworth',target:true,type:'Company'}},
+                {data:{id:'RepDavids',target:true,type:'Company'}},
+                {data:{id:'RepDannyDavis',target:true,type:'Company'}},
+                {data:{id:'RodneyDavis',target:true,type:'Company'}},
+                {data:{id:'RepDean',target:true,type:'Company'}},
+                {data:{id:'RepPeterDeFazio',target:true,type:'Company'}},
+                {data:{id:'RepDianaDeGette',target:true,type:'Company'}},
+                {data:{id:'RepDelBene',target:true,type:'Company'}},
+                {data:{id:'RepValDemings',target:true,type:'Company'}},
+                {data:{id:'RepDebDingell',target:true,type:'Company'}},
+                {data:{id:'RepLloydDoggett',target:true,type:'Company'}},
+                {data:{id:'RepDonaldsPress',target:true,type:'Company'}},
+                {data:{id:'SenatorDurbin',target:true,type:'Company'}},
+                {data:{id:'SenFeinstein',target:true,type:'Company'}},
+                {data:{id:'RepEscobar',target:true,type:'Company'}},
+                {data:{id:'RepAnnaEshoo',target:true,type:'Company'}},
+                {data:{id:'RepFitzgerald',target:true,type:'Company'}},
+                {data:{id:'RepFletcher',target:true,type:'Company'}},
+                {data:{id:'virginiafoxx',target:true,type:'Company'}},
+                {data:{id:'RepGallagher',target:true,type:'Company'}},
+                {data:{id:'RepGolden',target:true,type:'Company'}},
+                {data:{id:'RepGosar',target:true,type:'Company'}},
+                {data:{id:'RepSamGraves',target:true,type:'Company'}},
+                {data:{id:'RepMGriffith',target:true,type:'Company'}},
+
+   
+
+                ],
+                edges:[
+                {data:{source:'RepAdams',target:'repdonyoung',label:'RepAdams'}},
+{data:{source:'RepAdams',target:'RepColinAllred',label:'2'}},
+{data:{source:'RepAdams',target:'RepAuchincloss',label:'1'}},
+{data:{source:'RepAdams',target:'RepCindyAxne',label:'2'}},
+{data:{source:'RepAdams',target:'RepDonBacon',label:'2'}},
+{data:{source:'RepAdams',target:'RepBarragan',label:'14'}},
+{data:{source:'RepAdams',target:'RepKarenBass',label:'6'}},
+{data:{source:'RepAdams',target:'RepBeatty',label:'11'}},
+{data:{source:'RepAdams',target:'SenatorBennet',label:'2'}},
+{data:{source:'RepAdams',target:'RepDonBeyer',label:'2'}},
+{data:{source:'RepAdams',target:'SanfordBishop',label:'5'}},
+{data:{source:'RepAdams',target:'RepDanBishop',label:'8'}},
+{data:{source:'RepAdams',target:'RepLBR',label:'7'}},
+{data:{source:'RepAdams',target:'RepBonamici',label:'4'}},
+{data:{source:'RepAdams',target:'SenBooker',label:'76'}},
+{data:{source:'RepAdams',target:'CongBoyle',label:'1'}},
+{data:{source:'RepAdams',target:'SenSherrodBrown',label:'4'}},
+{data:{source:'RepAdams',target:'RepAnthonyBrown',label:'11'}},
+{data:{source:'RepAdams',target:'RepBrownley',label:'1'}},
+{data:{source:'RepAdams',target:'RepLarryBucshon',label:'5'}},
+{data:{source:'RepAdams',target:'RepTedBudd',label:'12'}},
+{data:{source:'RepAdams',target:'SenatorBurr',label:'3'}},
+{data:{source:'RepAdams',target:'RepCori',label:'16'}},
+{data:{source:'RepAdams',target:'RepCheri',label:'1'}},
+{data:{source:'RepAdams',target:'GKButterfield',label:'52'}},
+{data:{source:'RepAdams',target:'RepCardenas',label:'1'}},
+{data:{source:'RepAdams',target:'RepAndreCarson',label:'4'}},
+{data:{source:'RepAdams',target:'RepCartwright',label:'1'}},
+{data:{source:'RepAdams',target:'RepEdCase',label:'1'}},
+{data:{source:'RepAdams',target:'SenBobCasey',label:'1'}},
+{data:{source:'RepAdams',target:'RepCasten',label:'1'}},
+{data:{source:'RepAdams',target:'USRepKCastor',label:'1'}},
+{data:{source:'RepAdams',target:'JoaquinCastrotx',label:'4'}},
+{data:{source:'RepAdams',target:'RepCawthorn',label:'3'}},
+{data:{source:'RepAdams',target:'RepJudyChu',label:'4'}},
+{data:{source:'RepAdams',target:'RepCicilline',label:'1'}},
+{data:{source:'RepAdams',target:'RepKClark',label:'4'}},
+{data:{source:'RepAdams',target:'RepYvetteClarke',label:'4'}},
+{data:{source:'RepAdams',target:'WhipClyburn',label:'8'}},
+{data:{source:'RepAdams',target:'ChrisCoons',label:'8'}},
+{data:{source:'RepAdams',target:'GerryConnolly',label:'1'}},
+{data:{source:'RepAdams',target:'SenCortezMasto',label:'3'}},
+{data:{source:'RepAdams',target:'RepJoeCourtney',label:'2'}},
+{data:{source:'RepAdams',target:'RepAngieCraig',label:'2'}},
+{data:{source:'RepAdams',target:'SenDuckworth',label:'14'}},
+{data:{source:'RepAdams',target:'RepDavids',label:'13'}},
+{data:{source:'RepAdams',target:'RepDannyDavis',label:'1'}},
+{data:{source:'RepAdams',target:'RodneyDavis',label:'1'}},
+{data:{source:'RepAdams',target:'RepDean',label:'2'}},
+{data:{source:'RepAdams',target:'RepPeterDeFazio',label:'2'}},
+{data:{source:'RepAdams',target:'RepDianaDeGette',label:'1'}},
+{data:{source:'RepAdams',target:'RepDelBene',label:'1'}},
+{data:{source:'RepAdams',target:'RepValDemings',label:'2'}},
+{data:{source:'RepAdams',target:'RepDebDingell',label:'2'}},
+{data:{source:'RepAdams',target:'RepLloydDoggett',label:'1'}},
+{data:{source:'RepAdams',target:'RepDonaldsPress',label:'1'}},
+{data:{source:'RepAdams',target:'SenatorDurbin',label:'1'}},
+{data:{source:'RepAdams',target:'SenFeinstein',label:'1'}},
+{data:{source:'RepAdams',target:'RepEscobar',label:'5'}},
+{data:{source:'RepAdams',target:'RepAnnaEshoo',label:'1'}},
+{data:{source:'RepAdams',target:'RepFitzgerald',label:'2'}},
+{data:{source:'RepAdams',target:'RepFletcher',label:'3'}},
+{data:{source:'RepAdams',target:'virginiafoxx',label:'1'}},
+{data:{source:'RepAdams',target:'RepGallagher',label:'3'}},
+{data:{source:'RepAdams',target:'RepGolden',label:'1'}},
+{data:{source:'RepAdams',target:'RepGosar',label:'1'}},
+{data:{source:'RepAdams',target:'RepSamGraves',label:'2'}},
+{data:{source:'RepAdams',target:'RepMGriffith',label:'4'}},
+
+                ]
+            },
+            layout: {
+                name: 'cose',//用哪种方式排列，可选：breadthfirst(广度优先)、cose(缝制，乱交)、preset(预设)、circle(圆形)、grid(矩形)
+                idealEdgeLength: 60,
+                nodeOverlap: 20,
+                refresh: 20,
+                fit: true,
+                padding: 30,
+                randomize: false,
+                componentSpacing: 20,
+                nodeRepulsion: 400,
+                edgeElasticity: 10,
+                nestingFactor: 5,
+                animate:true,//出来动画
+                gravity: 80,
+                numIter: 1000,
+                initialTemp: 200,
+                coolingFactor: 0.95,
+                minTemp: 1.0
+            }
+        })
+        cy.collection("edge").addClass("edgeShow");
+        cy.on("mouseover", "node", function (a) {
+            $('#cy').css('cursor', 'move');
+            let c = a.target;
+            c.addClass("nodeHover");
+            // cy.collection("edge").removeClass("edgeShow");
+            cy.collection("edge").removeClass("edgeActive");
+            c.neighborhood("edge").addClass("edgeActive");
+        })
+        cy.on("mouseout", "node", function (a) {
+            $('#cy').css('cursor', 'default');
+            let c = a.target;
+            c.removeClass("nodeHover");
+            cy.collection("edge").removeClass("edgeActive");
+        })
+        cy.on("click", "node", function (a) {
+            let c = a.target;
+            c.removeClass("nodeActive");
+            cy.collection("edge").removeClass("edgeActive");
+        })
+        cy.on("vmousedown", "node", function (a) { //监听鼠标左键按下
+            let c = a.target;
+            cy.collection("edge").addClass('dull');
+            cy.collection("node").addClass('dull');
+            c.removeClass("dull");
+            c.neighborhood("edge").removeClass("dull");
+            c.neighborhood("edge").addClass("edgeActive");
+            c.neighborhood("edge").connectedNodes().removeClass("dull"); //当前节点的邻域边的边缘节点！
+            // c.neighborhood("node").removeClass("dull");//与上面意义相同
+        })
+        cy.on("tapend", "node", function (a) { //监听鼠标左键释放
+            let c = a.target;
+            cy.collection("edge").removeClass('dull');
+            cy.collection("node").removeClass('dull');
+            c.neighborhood("edge").removeClass("edgeActive");
+            c.neighborhood("node").removeClass("nodeActive");
+        })
+
+        //线
+        cy.on("mouseover", "edge", function (a) {
+            let c = a.target;
+            cy.collection("edge").removeClass("edgeActive");
+            c.addClass("edgeActive")
+        })
+        cy.on("mouseout", "edge", function (a) {
+            let c = a.target;
+            c.removeClass("edgeActive")
+        })
+    </script>
+</body>
+
+</html>
